@@ -17,7 +17,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 package de.uni_leipzig.asv.toolbox.ChineseWhispers.gui;
 
 import java.io.File;
-import com.sun.org.apache.xerces.internal.parsers.JAXPConfiguration;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -60,19 +59,19 @@ import de.uni_leipzig.asv.toolbox.util.commonFileChooser.*;
  *
  */
 public class Controller extends JTabbedPane implements ActionListener{
-	
+
     PropertyLoader pl_expert = new PropertyLoader("CW_ExpertProperties.ini");
     PropertyLoader pl_DB = new PropertyLoader("CW_DBPoperties.ini.");
     PropertyLoader pl_LastFiles = new PropertyLoader("CW_LastFiles.ini");
-    
-    
+
+
     public static boolean running_hack;
     public static final String NODES_TMP_FILENAME="nodelist.tmp";
 	public static final String EDGES_TMP_FILENAME="edgelist.tmp";
 	public static final String CLASSES_TMP_FILENAME="colors.tmp";
 
 	public static final String [] COLUMN_NAMES_FOR_DB_OUT={"node_id","node_label","cluster_id","cluster_1","strength_1","cluster_2","strength_2"};
-	
+
 	private static final String display_node_degree_default		= "0";
 	private static final String display_edges_default		= "3000";
 	private static final String scale_default			= "1000 x 1000";
@@ -82,15 +81,15 @@ public class Controller extends JTabbedPane implements ActionListener{
         private static final String mut_option_default			= "constant";
         private static final String update_param_default		= "continuous";
 	private static final String vote_value_default			= " 0.5 ";
-  	private static final String keepclass_value_default		= " 0.0 ";    
+  	private static final String keepclass_value_default		= " 0.0 ";
         private static final String mut_value_default			= " 0.0 ";
-        
-        
+
+
 	private static final boolean display_sub_default			= false;
 
 	private static final String hostnameString_default="localhost";
-	private static final String databaseString_default="cw"; 
-	private static final String rusernameString_default="root"; 
+	private static final String databaseString_default="cw";
+	private static final String rusernameString_default="root";
 	private static final String nodeList_DBtable_default="words";
 	private static final String node_ids_DBcol_default="w_id";
 	private static final String node_labels_DBcol_default="word";
@@ -101,42 +100,42 @@ public class Controller extends JTabbedPane implements ActionListener{
 	private static final String result_DBtable_default="clustering";
 	private static final int portNr_default=3306;
 
-	private String display_node_degree_current, 
-                display_edges_current, 
-                scale_current, 
-                minweight_edges_current, 
-                iterations_current, 
-                alg_param_current, 
+	private String display_node_degree_current,
+                display_edges_current,
+                scale_current,
+                minweight_edges_current,
+                iterations_current,
+                alg_param_current,
                 vote_value_current;
-        private String keepclass_value_current, 
-                mut_option_current, 
-                mut_value_current, 
+        private String keepclass_value_current,
+                mut_option_current,
+                mut_value_current,
                 update_param_current;
-        
+
 	private boolean display_sub_current;
-	
+
 	private boolean is_already_renumbered = false;
-	
+
 	private int display_edges_temp, scale_temp, display_degree_temp;
-	
+
 	private boolean is_alg_started= false;
-	
-	private boolean isGraphStarted=false, 
+
+	private boolean isGraphStarted=false,
                 isDiagStarted=false,
                 isFileOutStarted=false,
                 isDBOutStarted=false;
-	
-	private JSpinner nodeDegreeSpinner, 
-                displayEdgesSpinner, 
+
+	private JSpinner nodeDegreeSpinner,
+                displayEdgesSpinner,
                 scaleSpinner,
                 minweightSpinner,
                 iterationsSpinner;
-        
+
 	private ButtonGroup Alg_param;
         private ButtonGroup mutationParameter;
         private ButtonGroup Update_param;
-        
-	private JRadioButton top; 
+
+	private JRadioButton top;
 	private JRadioButton dist_log;
 	private JRadioButton dist_nolog;
 	private JRadioButton vote;
@@ -144,15 +143,15 @@ public class Controller extends JTabbedPane implements ActionListener{
         private JRadioButton constant;
         private JRadioButton stepwise;
 	private JRadioButton continuous;
-        
+
 	private JPanel radios;
 	private JSpinner vote_value;
         private JSpinner mut_value;
         private JSpinner keep_value;
-        
+
 	private JTextField nodefileText;
-	private JTextField edgeFileText;        
-        
+	private JTextField edgeFileText;
+
 	private JButton nodeFileBrowseButton;
 	private JButton edgeFileBrowseButton;
 	private JButton setdefault;
@@ -160,72 +159,72 @@ public class Controller extends JTabbedPane implements ActionListener{
 	private JButton start;
 	private JCheckBox only_sub;
 	private JRadioButton UseFile,UseDB;
-	
+
 	private JButton AsGraph;
 	private JButton AsDia;
 	private JButton AsFile;
 	private JButton AsDB;
-	
+
 	public DBConnect dbc_out;
 	public DBConnect dbc_in;
 	private boolean is_already_read_from_DB=false;
-	
+
 	public JProgressBar loadFromFileProgress;
 	public JProgressBar loadFromDBProgress;
 	public JLabel loadFRomDBLabel;
-	
+
 	public JProgressBar writeIntoDBProgress;
 	public JLabel writeIntoDBLabel;
-	
+
 	public JProgressBar calculateCWProgress;
 	private JLabel CalculateCWLabel;
-	
+
 	public JProgressBar writeIntoFiles;
-	
-	private JCheckBox FileOutBox;    
+
+	private JCheckBox FileOutBox;
 	private JCheckBox DBOutBox;
 	private JCheckBox FilesNumbered;
         private JCheckBox GraphInMemory;
-        
+
 	private JTextField FileOutField;
- 
+
         private JButton MultFileOutBrowse;  // ??
-        
+
 	private JButton FileOutBrowseButton;
 	private JButton startFileDB, dbtake, dbdefault;
 	private JLabel startGraph, startDiagramm;
-	
+
 	public boolean isDBReadInUse=false;//is momentarily being read from DB?
 	public boolean isDBWriteInUse=false;//is momentarily being written to DB?
-	public boolean isFileWriteInUse=false;//is momentarily being written to files?	
+	public boolean isFileWriteInUse=false;//is momentarily being written to files?
 	private boolean isFileReadInUsed=true;
-	private boolean isDBInUsed=false; 
+	private boolean isDBInUsed=false;
 	private boolean isFileOutselected = false;
 	private boolean isDBOutselected = false;
-	
+
 	private boolean isAlgStartedForGraph=false;
-	
+
 	private boolean dBOutError = false;
 	private boolean dBInError = false;
-	
+
 	//DB
-	private JTextField 
-                rhostfield, 
-                ruserfield, 
+	private JTextField
+                rhostfield,
+                ruserfield,
                 rportfield,
-                rdatabasefield, 
-                rtablename1efield, 
-                colnodeIdfield, 
-                colnodeLabelfield, 
-                rtablename2efield, 
-                coledge1field, 
-                coledge2field, 
+                rdatabasefield,
+                rtablename1efield,
+                colnodeIdfield,
+                colnodeLabelfield,
+                rtablename2efield,
+                coledge1field,
+                coledge2field,
                 colweightfield,
                 otablenamefield;
-	private String 
+	private String
                 hostnameString,
-                databaseString, 
-                usernameString, 
+                databaseString,
+                usernameString,
                 passwdString,
                 NodeTableString,
                 NodeIDColString,
@@ -238,7 +237,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	private int portNr;
 	private boolean isDBValuesSet=false;
 	private JPasswordField rpasswdfield;
-	
+
 	private ChineseWhispers cw;
 	private MyGraphGUI g;
 	private JPanel pg;
@@ -249,7 +248,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	private JPanel welcomePanel = new JPanel(new GridLayout(3,1));
 	JFrame window;
 	private LinkedList L;
-	
+
 	/**
 	 * Set and controll the GUI, handles IOs.
 	 *
@@ -267,7 +266,7 @@ public class Controller extends JTabbedPane implements ActionListener{
                     UIManager.getLookAndFeelDefaults().put("TextField.font", new Font(null,Font.ROMAN_BASELINE,11));
                     UIManager.getLookAndFeelDefaults().put("Button.font", new Font(null,Font.BOLD,11));
                     UIManager.getLookAndFeelDefaults().put("CheckBox.font", new Font(null,Font.ROMAN_BASELINE,11));
-            } catch (Exception e2) {System.out.println("Error in GUI");} 
+            } catch (Exception e2) {System.out.println("Error in GUI");}
             getSavedValues();
             getSavedDBValues();
 
@@ -439,14 +438,14 @@ public class Controller extends JTabbedPane implements ActionListener{
 
             AsGraph.setBounds(10,315,51,51);
             AsDia.setBounds(200,315,50,50);
-            
+
             CalculateCWLabel.setBounds(419,325,200,20);
             calculateCWProgress.setBounds(420,345,150,10);
             calculateCWProgress.setBackground(Color.WHITE);
             calculateCWProgress.setBorderPainted(false);
             calculateCWProgress.setStringPainted(false);
 
-            //add elements to GUI		
+            //add elements to GUI
             P1.add(UseFile);
             P1.add(FilesNumbered);
             P1.add(GraphInMemory);
@@ -466,7 +465,7 @@ public class Controller extends JTabbedPane implements ActionListener{
             P1.add(DBOutBox);
             P1.add(writeIntoDBProgress);
             P1.add(FileOutBox);
-         
+
             P1.add(writeIntoFiles);
 
             P1.add(AsGraph);
@@ -487,26 +486,26 @@ public class Controller extends JTabbedPane implements ActionListener{
                 public void actionPerformed(ActionEvent e) {
                             pl_LastFiles.setParam("nodelist-file",nodefileText.getText());
                             pl_LastFiles.setParam("edgelist-file",edgeFileText.getText());
-                            startGraph(); 
+                            startGraph();
                     }
                 });
             AsDia.addActionListener (new ActionListener(){
                 public void actionPerformed(ActionEvent e) {
                             pl_LastFiles.setParam("nodelist-file",nodefileText.getText());
                             pl_LastFiles.setParam("edgelist-file",edgeFileText.getText());
-                            startDia(); 
+                            startDia();
                     }
                     });
             AsFile.addActionListener (new ActionListener(){public void actionPerformed(ActionEvent e) { }});
             AsDB.addActionListener (new ActionListener(){public void actionPerformed(ActionEvent e) { }});
 
 //************************************************************************
-//expert panel******************************************************		
+//expert panel******************************************************
 
             //define elements
             JLabel textg = new JLabel("<html><b><u>GRAPH SETTINGS</u></b></html>");
             JLabel text4 = new JLabel("<html><b>- degree of nodes:</b><br>"+
-                                                              "<smaller>"+	
+                                                              "<smaller>"+
                                               "<b>value &lt; 0</b>, display nodes with higher degree<br>" +
                                               "<b>value &gt; 0</b>, display nodes with lower degree<br>" +
                                               "<b>value = 0</b>, display all nodes" +
@@ -565,7 +564,7 @@ public class Controller extends JTabbedPane implements ActionListener{
             iterationsSpinner = new JSpinner(new SpinnerListModel(L) );
             iterationsSpinner.setValue(iterations_current);
 
-            
+
             JLabel text9 = new JLabel("<html><b>- algorithm strategy:</b></html>");
             JLabel text10 = new JLabel("<html><b>- mutation:</b></html>");
             JLabel text11 = new JLabel("<html><b>- update strategy:</b></html>");
@@ -681,7 +680,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 
 
             //inaktive for all options but 'vote'
-            if(!alg_param_current.equals("vote")) vote_value.setEnabled(false); 
+            if(!alg_param_current.equals("vote")) vote_value.setEnabled(false);
 
             Alg_param.add(top);
             Alg_param.add(dist_log);
@@ -784,7 +783,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 
             P2.add(text5);
             P2.add(displayEdgesSpinner);
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////		
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //database panel
             JLabel rdatabase = new JLabel("<html><u><b>DATABASE</b></u></html>");
             rdatabase.setBounds(10,20,100,20);
@@ -971,8 +970,8 @@ public class Controller extends JTabbedPane implements ActionListener{
             P3.add(dbdefault);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//************************************************************************************************************		
-		
+//************************************************************************************************************
+
 //welcome panel
         JLabel l1 =new JLabel("<html><h1><u>Chinese Whispers</u></h1>" +
 				"<p align=\"center\">A Graph Clustering Algorithm<br>" +
@@ -980,7 +979,7 @@ public class Controller extends JTabbedPane implements ActionListener{
         l1.setHorizontalAlignment(JLabel.CENTER);
         l1.setVerticalAlignment(JLabel.BOTTOM);
         l1.setBackground(welcomePanel.getBackground());
-        
+
             welcomePanel.add(l1);
 
             JLabel l2 = new JLabel(new ImageIcon(Controller.class.getResource("pics/whisper1.jpg")));
@@ -1005,8 +1004,8 @@ public class Controller extends JTabbedPane implements ActionListener{
             addTab("expert",P2);
             addTab("database",P3);
 	}
-	
-	//DB	
+
+	//DB
 	/**
 	 * Writes DB-parameters into property-file.
 	 */
@@ -1014,7 +1013,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	    pl_DB.setParam("Hostname",(String)rhostfield.getText());
 	    pl_DB.setParam("Port",(String)rportfield.getText());
 	    pl_DB.setParam("Username",(String)ruserfield.getText());
-	    
+
 	    String pw="";
 	    for(int i=0; i<rpasswdfield.getPassword().length;i++){
 	        pw+=rpasswdfield.getPassword()[i];
@@ -1029,7 +1028,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	    pl_DB.setParam("edgeCol2Name",(String)coledge2field.getText());
 	    pl_DB.setParam("edgeColWeightName",(String)colweightfield.getText());
 	    pl_DB.setParam("resultTableName",(String)otablenamefield.getText());
-	    
+
 	    is_alg_started = false;
 	    is_already_read_from_DB=false;
 	    is_already_renumbered=false;
@@ -1053,7 +1052,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	    coledge2field.setText(edgeList_DBcol2_default);
 	    colweightfield.setText(edgeList_DBcolweight_default);
 	    otablenamefield.setText(result_DBtable_default);
-	    
+
 	    is_alg_started=false;
 	    is_already_read_from_DB=false;
 	    is_already_renumbered=false;
@@ -1066,7 +1065,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	private void getSavedDBValues(){
 		boolean isSet []=new boolean[12];
 		for(int i=0;i<12;i++)isSet[i]=false;
-		
+
 		if(pl_DB.getParam("Hostname")!= null){hostnameString= pl_DB.getParam("Hostname"); isSet[0]=true;}	else hostnameString=hostnameString_default;
 		if(pl_DB.getParam("Port")!= null){
 		    try{
@@ -1092,7 +1091,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 		    if(isSet[i]) isDBValuesSet=true;
 		    else{isDBValuesSet=false;break;}
 		}
-		
+
 		is_alg_started=false;
 		is_already_read_from_DB=false;
 		is_already_renumbered=false;
@@ -1111,10 +1110,10 @@ public class Controller extends JTabbedPane implements ActionListener{
 		pl_expert.setParam("mutationParameter",mutationParameter.getSelection().getActionCommand());
                 pl_expert.setParam("Update_param",Update_param.getSelection().getActionCommand());
                 pl_expert.setParam("vote_value",(String)vote_value.getValue());
-                pl_expert.setParam("keep_value",(String)keep_value.getValue());              
-                pl_expert.setParam("mut_value",(String)mut_value.getValue());                            
+                pl_expert.setParam("keep_value",(String)keep_value.getValue());
+                pl_expert.setParam("mut_value",(String)mut_value.getValue());
 		pl_expert.setParam("only_sub", new Boolean(only_sub.isSelected()).toString());
-		
+
 		is_alg_started = false;
 	} // end saveValues
 	/**
@@ -1130,12 +1129,12 @@ public class Controller extends JTabbedPane implements ActionListener{
 		vote_value.setValue(vote_value_default);
                 mut_value.setValue(mut_value_default);
                 keep_value.setValue(keepclass_value_default);
-               
+
 		only_sub.setSelected(display_sub_default);
 		top.setSelected(true);
                 continuous.setSelected(true);
                 dec.setSelected(true);
-		vote_value.setEnabled(false);		
+		vote_value.setEnabled(false);
 		is_alg_started=false;
 	}
 	/**
@@ -1143,43 +1142,43 @@ public class Controller extends JTabbedPane implements ActionListener{
 	 *
 	 */
 	private void getSavedValues(){
-		
+
 		if(pl_expert.getParam("displayNodeDegree")!= null){
 			display_node_degree_current= pl_expert.getParam("displayNodeDegree");
 		}else{
 			display_node_degree_current= display_node_degree_default;
 		}
-		
+
 		if(pl_expert.getParam("displayEdges")!= null){
 			display_edges_current= pl_expert.getParam("displayEdges");
 		}else{
 			display_edges_current=  display_edges_default;
 		}
-		
+
 		if(pl_expert.getParam("scale")!= null){
 			scale_current= pl_expert.getParam("scale");
 		}else{
 			scale_current= scale_default;
 		}
-		
+
 		if(pl_expert.getParam("minWeight")!= null){
 			minweight_edges_current= pl_expert.getParam("minWeight");
 		}else{
 			minweight_edges_current=  minweight_edges_default;
 		}
-		
+
 		if(pl_expert.getParam("iterations")!= null){
 			iterations_current= pl_expert.getParam("iterations");
 		}else{
 			iterations_current= iterations_default;
 		}
-		
+
 		if(pl_expert.getParam("vote_value")!= null){
 			vote_value_current= pl_expert.getParam("vote_value");
 		}else{
 			vote_value_current= vote_value_default;
 		}
-                
+
                 if(pl_expert.getParam("keep_value")!= null){
 			keepclass_value_current= pl_expert.getParam("keep_value");
 		}else{
@@ -1195,46 +1194,46 @@ public class Controller extends JTabbedPane implements ActionListener{
                 if(pl_expert.getParam("mutationParameter")!= null){
 			mut_option_current = pl_expert.getParam("mutationParameter");
 		}else{
-			mut_option_current = mut_option_default; 			
+			mut_option_current = mut_option_default;
 		}
-		
+
                 if(pl_expert.getParam("Update_param")!= null){
 			update_param_current = pl_expert.getParam("Update_param");
 		}else{
-			update_param_current = update_param_default; 			
+			update_param_current = update_param_default;
 		}
-			
+
 		if(pl_expert.getParam("Alg_param")!= null){
 			alg_param_current = pl_expert.getParam("Alg_param");
 		}else{
-			alg_param_current = alg_param_default; 			
+			alg_param_current = alg_param_default;
 		}
-		
+
 		if(pl_expert.getParam("only_sub")!= null){
 			display_sub_current= new Boolean(pl_expert.getParam("only_sub")).booleanValue();
 		}else{
 			display_sub_current= display_sub_default;
 		}
-		
+
 		is_alg_started=false;
 	}
-	
-	
+
+
 	/**
 	 * Handels Button-pushed events.
 	 * @param e The ActionEvent.
 	 */
 	public void actionPerformed(ActionEvent e) {
 	    String ec = e.getActionCommand();
-	    if(ec.equals("vote")){ 
+	    if(ec.equals("vote")){
 	        vote_value.setEnabled(true);
 	    }
 		else if(ec.equals("top")||ec.equals("dist log")||ec.equals("dist nolog")){
 		    vote_value.setEnabled(false);
 		}
-		
+
             if(ec.equals("UseDB")){
-		           
+
                 UseDB.setSelected(true);
 		UseFile.setSelected(false);
                 setFileInUsed(UseFile.isSelected());
@@ -1246,73 +1245,73 @@ public class Controller extends JTabbedPane implements ActionListener{
 		nodeFileBrowseButton.setEnabled(false);
 		edgeFileBrowseButton.setEnabled(false);
 
-		rhostfield.setEnabled(true); 
-		ruserfield.setEnabled(true); 
+		rhostfield.setEnabled(true);
+		ruserfield.setEnabled(true);
 		rportfield.setEnabled(true);
-		rdatabasefield.setEnabled(true); 
-		rtablename1efield.setEnabled(true); 
-		colnodeIdfield.setEnabled(true); 
-		colnodeLabelfield.setEnabled(true); 
-		rtablename2efield.setEnabled(true); 
-		coledge1field.setEnabled(true); 
-		coledge2field.setEnabled(true); 
+		rdatabasefield.setEnabled(true);
+		rtablename1efield.setEnabled(true);
+		colnodeIdfield.setEnabled(true);
+		colnodeLabelfield.setEnabled(true);
+		rtablename2efield.setEnabled(true);
+		coledge1field.setEnabled(true);
+		coledge2field.setEnabled(true);
 		colweightfield.setEnabled(true);
 		rpasswdfield.setEnabled(true);
 
-		rhostfield.setBackground(Color.WHITE); 
-		ruserfield.setBackground(Color.WHITE); 
+		rhostfield.setBackground(Color.WHITE);
+		ruserfield.setBackground(Color.WHITE);
 		rportfield.setBackground(Color.WHITE);
-		rdatabasefield.setBackground(Color.WHITE); 
-		rtablename1efield.setBackground(Color.WHITE); 
-		colnodeIdfield.setBackground(Color.WHITE); 
-		colnodeLabelfield.setBackground(Color.WHITE); 
-		rtablename2efield.setBackground(Color.WHITE); 
-		coledge1field.setBackground(Color.WHITE); 
-		coledge2field.setBackground(Color.WHITE); 
+		rdatabasefield.setBackground(Color.WHITE);
+		rtablename1efield.setBackground(Color.WHITE);
+		colnodeIdfield.setBackground(Color.WHITE);
+		colnodeLabelfield.setBackground(Color.WHITE);
+		rtablename2efield.setBackground(Color.WHITE);
+		coledge1field.setBackground(Color.WHITE);
+		coledge2field.setBackground(Color.WHITE);
 		colweightfield.setBackground(Color.WHITE);
 		rpasswdfield.setBackground(Color.WHITE);
             }
             else if(ec.equals("UseFile")){
-		    
+
                 UseDB.setSelected(false);
                 UseFile.setSelected(true);
 
                 setFileInUsed(UseFile.isSelected());
                 setDBInUsed(UseDB.isSelected());
-                
+
 		nodefileText.setEnabled(true);
 		nodefileText.setBackground(Color.WHITE);
 		edgeFileText.setEnabled(true);
 		edgeFileText.setBackground(Color.WHITE);
 		nodeFileBrowseButton.setEnabled(true);
 		edgeFileBrowseButton.setEnabled(true);
-		
+
                 if(!isDBOutselected()){
-		    rhostfield.setEnabled(false); 
-		    ruserfield.setEnabled(false); 
+		    rhostfield.setEnabled(false);
+		    ruserfield.setEnabled(false);
 		    rportfield.setEnabled(false);
-		    rdatabasefield.setEnabled(false); 
+		    rdatabasefield.setEnabled(false);
                     rpasswdfield.setEnabled(false);
-                    rhostfield.setBackground(Color.LIGHT_GRAY); 
-                    ruserfield.setBackground(Color.LIGHT_GRAY); 
+                    rhostfield.setBackground(Color.LIGHT_GRAY);
+                    ruserfield.setBackground(Color.LIGHT_GRAY);
                     rportfield.setBackground(Color.LIGHT_GRAY);
-                    rdatabasefield.setBackground(Color.LIGHT_GRAY); 
+                    rdatabasefield.setBackground(Color.LIGHT_GRAY);
                     rpasswdfield.setBackground(Color.LIGHT_GRAY);
 		}
-		rtablename1efield.setEnabled(false); 
-		colnodeIdfield.setEnabled(false); 
-		colnodeLabelfield.setEnabled(false); 
-		rtablename2efield.setEnabled(false); 
-		coledge1field.setEnabled(false); 
-		coledge2field.setEnabled(false); 
+		rtablename1efield.setEnabled(false);
+		colnodeIdfield.setEnabled(false);
+		colnodeLabelfield.setEnabled(false);
+		rtablename2efield.setEnabled(false);
+		coledge1field.setEnabled(false);
+		coledge2field.setEnabled(false);
 		colweightfield.setEnabled(false);
 
-		rtablename1efield.setBackground(Color.LIGHT_GRAY); 
-		colnodeIdfield.setBackground(Color.LIGHT_GRAY); 
-		colnodeLabelfield.setBackground(Color.LIGHT_GRAY); 
-		rtablename2efield.setBackground(Color.LIGHT_GRAY); 
-		coledge1field.setBackground(Color.LIGHT_GRAY); 
-		coledge2field.setBackground(Color.LIGHT_GRAY); 
+		rtablename1efield.setBackground(Color.LIGHT_GRAY);
+		colnodeIdfield.setBackground(Color.LIGHT_GRAY);
+		colnodeLabelfield.setBackground(Color.LIGHT_GRAY);
+		rtablename2efield.setBackground(Color.LIGHT_GRAY);
+		coledge1field.setBackground(Color.LIGHT_GRAY);
+		coledge2field.setBackground(Color.LIGHT_GRAY);
 		colweightfield.setBackground(Color.LIGHT_GRAY);
             }
             if ((ec.equals("FileOutBox"))||(ec.equals("MultFileOutBox"))||(ec.equals("DBOutBox"))) {
@@ -1321,37 +1320,37 @@ public class Controller extends JTabbedPane implements ActionListener{
 		        FileOutField.setBackground(Color.WHITE);
 		        FileOutBrowseButton.setEnabled(true);
 		}
-                
+
                 if(ec.equals("DBOutBox")){
                         setDBOutselected(!isDBOutselected);
                         if(DBOutBox.isSelected()){
                             startFileDB.setEnabled(true);
                             otablenamefield.setEnabled(true);
-                            otablenamefield.setBackground(Color.WHITE);	        
+                            otablenamefield.setBackground(Color.WHITE);
                             if(!isDBInUsed()){
-                                rhostfield.setEnabled(true); 
-                                ruserfield.setEnabled(true); 
+                                rhostfield.setEnabled(true);
+                                ruserfield.setEnabled(true);
                                 rportfield.setEnabled(true);
-                                rdatabasefield.setEnabled(true); 
+                                rdatabasefield.setEnabled(true);
                             	rpasswdfield.setEnabled(true);
-				rhostfield.setBackground(Color.WHITE); 
-                            	ruserfield.setBackground(Color.WHITE); 
+				rhostfield.setBackground(Color.WHITE);
+                            	ruserfield.setBackground(Color.WHITE);
 				rportfield.setBackground(Color.WHITE);
-				rdatabasefield.setBackground(Color.WHITE); 
+				rdatabasefield.setBackground(Color.WHITE);
 				rpasswdfield.setBackground(Color.WHITE);
                             }
                         }
                  }
-                
-                
+
+
                 if((!DBOutBox.isSelected())&&(!FileOutBox.isSelected())){
                     startFileDB.setEnabled(false);
                 } else {
                     startFileDB.setEnabled(true);
                 }
             }
-             
-     
+
+
 	    if(isDBInUsed()||isDBOutselected()){
 	        dbtake.setEnabled(true);
 	        dbdefault.setEnabled(true);
@@ -1370,7 +1369,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	        	});
 	        	th1.start();
 	        }
-                
+
 	        if(DBOutBox.isSelected()){
 	        	pl_LastFiles.setParam("nodelist-file",nodefileText.getText());
 	        	pl_LastFiles.setParam("edgelist-file",edgeFileText.getText());
@@ -1385,7 +1384,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	        }
 	    }
 	}
-	
+
 	//indicates critical situations (file- and DBout at the same time)
 	private boolean semaphore=true;
 	/**
@@ -1406,7 +1405,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	            }
 	            catch(Exception e){}
 	        }
-                
+
 	    }
 	    else if(fileOrDB==2){
 	        //System.out.println("startDBWrite()");
@@ -1435,7 +1434,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 			edgeFileText.setText("examples"+System.getProperty("file.separator")+"20edges.txt");
 	    }
         } // end fillFilenames
-	
+
 	/**
 	 * Set all Buttons either disabled during calculating chinesewhispers or enabled when calculation finished.
 	 * @param status The status to set.
@@ -1445,7 +1444,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 		AsDia.setEnabled(status);
 		AsFile.setEnabled(status);
 		AsDB.setEnabled(status);
-		
+
 		FileOutBox.setEnabled(status);
 		DBOutBox.setEnabled(status);
 		startFileDB.setEnabled(status);
@@ -1457,11 +1456,11 @@ public class Controller extends JTabbedPane implements ActionListener{
 		}
 	} // end setStatus
 
-        
-        ///* OPEN FILE OLD 
+
+        ///* OPEN FILE OLD
 	public void openFile(ActionEvent e){
 	    JFileChooser chooser = new JFileChooser();
-               
+
 
 	    int returnVal = chooser.showOpenDialog(null);
 	    if(returnVal == JFileChooser.APPROVE_OPTION) {
@@ -1475,10 +1474,10 @@ public class Controller extends JTabbedPane implements ActionListener{
 	    	}
 	    }
 	} // end openFile
-         
-       
-      
-        
+
+
+
+
         /* NEW openFile using commonChooser
         public void openFile(ActionEvent e){
             String[] extension= new String[1];
@@ -1497,16 +1496,16 @@ public class Controller extends JTabbedPane implements ActionListener{
             if(e.getActionCommand().equals("edgelist")){
                     CommonFileChooser chooser = new CommonFileChooser(extension, "edge list");
                     String selected=chooser.showDialogAndReturnFilename(this.P2, "Choose");
-                    if (selected!=null) {                        
+                    if (selected!=null) {
                        edgeFileText.setText(chooser.showDialogAndReturnFilename(this.P2, "Choose"));
                     }
             }
         }
-	
-         
+
+
          //*/
-        
-        
+
+
 	public boolean Alg_isFileOrDBOut;
 	/**
 	 * Says weither DBoutput Or Fileoutput is set.
@@ -1528,11 +1527,11 @@ public class Controller extends JTabbedPane implements ActionListener{
 	 * @param Alg_isFileOrDBOut If filedialog expected (write to file) true, false otherwise.
 	 */
 	private void startALG(boolean Alg_isFileOrDBOut){
-            
+
 	    this.Alg_isFileOrDBOut=Alg_isFileOrDBOut;
 	    //this.isDBReadInUse=true;
 	    //System.out.println("startALG(boolean Alg_isFileOrDBOut)");
-	    
+
 	    Thread t = new Thread(new Runnable(){
 	        public void run(){
                         dBOutError = false;
@@ -1541,16 +1540,16 @@ public class Controller extends JTabbedPane implements ActionListener{
                         String edgeListString;
 
                         //get pparameters
-                        display_degree_temp    = Integer.parseInt((String)nodeDegreeSpinner.getValue());	
+                        display_degree_temp    = Integer.parseInt((String)nodeDegreeSpinner.getValue());
                         display_edges_temp= 1000;
 
                         if(displayEdgesSpinner.getValue().equals("all")){
                                 display_edges_temp= -2;
                         }else{
-                                display_edges_temp  = Integer.parseInt((String)displayEdgesSpinner.getValue());	
+                                display_edges_temp  = Integer.parseInt((String)displayEdgesSpinner.getValue());
                         }
 
-                        scale_temp = 1000; 
+                        scale_temp = 1000;
                         if(scaleSpinner.getValue().equals("600 x 600"))   scale_temp = 600;
                         if(scaleSpinner.getValue().equals("1000 x 1000")) scale_temp = 1000;
                         if(scaleSpinner.getValue().equals("2000 x 2000")) scale_temp = 2000;
@@ -1558,8 +1557,8 @@ public class Controller extends JTabbedPane implements ActionListener{
                         if(scaleSpinner.getValue().equals("4000 x 4000")) scale_temp = 4000;
                         if(scaleSpinner.getValue().equals("5000 x 5000")) scale_temp = 5000;
 
-                        int minWeight_temp  = Integer.parseInt((String)minweightSpinner.getValue());		
-                        int iterations_temp   = Integer.parseInt((String)iterationsSpinner.getValue());	
+                        int minWeight_temp  = Integer.parseInt((String)minweightSpinner.getValue());
+                        int iterations_temp   = Integer.parseInt((String)iterationsSpinner.getValue());
 
                         display_sub_current = only_sub.isSelected();
 
@@ -1576,14 +1575,14 @@ public class Controller extends JTabbedPane implements ActionListener{
                         if(ALGOPT.equals("dist log")) {Alg_param_temp="dist"; Alg_param_value_temp="log";}
                         if(ALGOPT.equals("dist nolog")) {Alg_param_temp="dist"; Alg_param_value_temp="nolog";}
                         if(ALGOPT.equals("vote")){
-                                Alg_param_temp="vote"; 
+                                Alg_param_temp="vote";
                                 Alg_param_value_temp=((String)vote_value.getValue()).trim();
                         } // fi vote
 
                         Alg_param_keep=((String)keep_value.getValue()).trim();
                         Alg_param_mut1=mutationParameter.getSelection().getActionCommand();
                         Alg_param_mut2=((String)mut_value.getValue()).trim();
-                        Alg_param_update=Update_param.getSelection().getActionCommand();            
+                        Alg_param_update=Update_param.getSelection().getActionCommand();
 
                         alg_param_current = Alg_param_temp;
                         vote_value_current= Alg_param_value_temp;
@@ -1597,7 +1596,7 @@ public class Controller extends JTabbedPane implements ActionListener{
                             cw.isNumbered=false;
                             is_already_renumbered=true;
                         }
-				
+
 		        if(isDBInUsed()){
 		            nodeListString = NODES_TMP_FILENAME;
                             edgeListString  = EDGES_TMP_FILENAME;
@@ -1605,49 +1604,49 @@ public class Controller extends JTabbedPane implements ActionListener{
 
 		            //if data is not yet read from DB
 		            if(!is_already_read_from_DB){
- 
+
                                 // delete old files
-           /*                     
+           /*
                                 System.out.println("Deleting files with "+nodeListString+" and "+edgeListString);
-                                
+
                                 new File(nodeListString).delete();
                                 new File(nodeListString+".renumbered").delete();
                                 new File(nodeListString+".renumbered.bin").delete();
                                 new File(nodeListString+".renumbered.idx").delete();
                                 new File(nodeListString+".renumbered.meta").delete();
-                                new File(nodeListString+".renumbered.tmp").delete();                                
+                                new File(nodeListString+".renumbered.tmp").delete();
                                 new File(nodeListString+".bin").delete();
-                                new File(nodeListString+".idx").delete();                            
-                                
+                                new File(nodeListString+".idx").delete();
+
                                 new File(edgeListString).delete();
-                                new File(edgeListString+".renumbered").delete();                                
-                                new File(edgeListString+".renumbered.bin").delete();                               
+                                new File(edgeListString+".renumbered").delete();
+                                new File(edgeListString+".renumbered.bin").delete();
                                 new File(edgeListString+".renumbered.idx").delete();
                                 new File(edgeListString+".renumbered.meta").delete();
-                                new File(edgeListString+".renumbered.tmp").delete();                                  
-                                new File(edgeListString+".bin").delete();                               
-                                new File(edgeListString+".idx").delete();       
-             */                   
-                                
-                                String [] nodeColumns={colnodeIdfield.getText(),colnodeLabelfield.getText()}; 
+                                new File(edgeListString+".renumbered.tmp").delete();
+                                new File(edgeListString+".bin").delete();
+                                new File(edgeListString+".idx").delete();
+             */
+
+                                String [] nodeColumns={colnodeIdfield.getText(),colnodeLabelfield.getText()};
                                 String [] edgeColumns={coledge1field.getText(),coledge2field.getText(),colweightfield.getText()};
                                 String pw="";
 
                                 for(int i=0; i<rpasswdfield.getPassword().length;i++)pw+=rpasswdfield.getPassword()[i];
 
                                 dbc_out = new DBConnect(
-                                    rhostfield.getText(), 
+                                    rhostfield.getText(),
                                     rdatabasefield.getText(),
-                                    ruserfield.getText(), 
+                                    ruserfield.getText(),
                                     pw,
                                     (int)Integer.parseInt(rportfield.getText()),
-                                    rtablename1efield.getText(), 
+                                    rtablename1efield.getText(),
                                     nodeColumns,
                                     rtablename2efield.getText(),
                                     edgeColumns
                                 );
-                                                      
-                                
+
+
                                 try{
                                     //System.out.println("Deleting files with "+nodeListString+" and "+edgeListString);
 
@@ -1656,20 +1655,20 @@ public class Controller extends JTabbedPane implements ActionListener{
                                     new File(nodeListString+".renumbered.bin").delete();
                                     new File(nodeListString+".renumbered.idx").delete();
                                     new File(nodeListString+".renumbered.meta").delete();
-                                    new File(nodeListString+".renumbered.tmp").delete();                                
+                                    new File(nodeListString+".renumbered.tmp").delete();
                                     new File(nodeListString+".bin").delete();
-                                    new File(nodeListString+".idx").delete();                            
+                                    new File(nodeListString+".idx").delete();
 
                                     new File(edgeListString).delete();
-                                    new File(edgeListString+".renumbered").delete();                                
-                                    new File(edgeListString+".renumbered.bin").delete();                               
+                                    new File(edgeListString+".renumbered").delete();
+                                    new File(edgeListString+".renumbered.bin").delete();
                                     new File(edgeListString+".renumbered.idx").delete();
                                     new File(edgeListString+".renumbered.meta").delete();
-                                    new File(edgeListString+".renumbered.tmp").delete();                                  
-                                    new File(edgeListString+".bin").delete();                               
-                                    new File(edgeListString+".idx").delete();      
-                                    
-                                    
+                                    new File(edgeListString+".renumbered.tmp").delete();
+                                    new File(edgeListString+".bin").delete();
+                                    new File(edgeListString+".idx").delete();
+
+
                                     dbc_out.stillWorks=true;
                                     dbc_out.getAllFromDbAndWriteIntoTempFiles();
 
@@ -1677,7 +1676,7 @@ public class Controller extends JTabbedPane implements ActionListener{
                                 }
                                 catch(IOWrapperException iow_e){
                                     System.err.println("Error while loading from DB!\nConnection failed!");
-                                    JOptionPane.showMessageDialog(null,"Error while loading from database!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE); 
+                                    JOptionPane.showMessageDialog(null,"Error while loading from database!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE);
                                     is_alg_started = false;
                                     dBOutError=true;
                                     dBInError=true;
@@ -1690,7 +1689,7 @@ public class Controller extends JTabbedPane implements ActionListener{
                                 }
                                 catch(IOIteratorException ioi_e){
                                     System.err.println("Error while loading from DB!\nCould not iterate over results!");
-                                    JOptionPane.showMessageDialog(null,"Error while loading from database!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE); 
+                                    JOptionPane.showMessageDialog(null,"Error while loading from database!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE);
                                     is_alg_started = false;
                                     dBOutError=true;
                                     dBInError=true;
@@ -1703,25 +1702,25 @@ public class Controller extends JTabbedPane implements ActionListener{
 
 		            }//fi (!is_already_read_from_DB)
 		        }// fi (isDBInUsed())
-				
+
                         else if(isFileInUsed() && (edgeFileText.getText().length()!=0 && nodefileText.getText().length()!=0 ))	{
                                 nodeListString = nodefileText.getText();
                                 edgeListString  = edgeFileText.getText();
                                 is_already_read_from_DB=false;
-                                
-                            
+
+
                         }
                         else{
                             nodeListString = "examples"+System.getProperty("file.separator")+"allews.txt";
                                 edgeListString  = "examples"+System.getProperty("file.separator")+"skoll.txt";
                                 is_already_read_from_DB=false;
                         }
-                        
-                        
-		        //initialize                                
+
+
+		        //initialize
                         double call_mut_value;
                         double call_keep_value;
-                        
+
                         call_keep_value=(new Double(Alg_param_keep)).doubleValue();
                         call_mut_value=(new Double(Alg_param_mut2)).doubleValue();
 
@@ -1729,30 +1728,30 @@ public class Controller extends JTabbedPane implements ActionListener{
                         cw.graphInMemory=GraphInMemory.isSelected();
                         cw.setCWGraph(nodeListString,edgeListString);
 		        cw.setCWParameters(minWeight_temp,Alg_param_temp,Alg_param_value_temp, call_keep_value, Alg_param_mut1, call_mut_value, Alg_param_update, iterations_temp,isAlg_isFileOrDBOut());
-                        
+
 		        cw.run();
-                     
+
 		        is_alg_started = true;
 		        semaphore=false;
 		        //setAlg_isFileOrDBOut(false);
 	        }//run
             });//runnable, thread
-            
+
 	    t.start();
             Timer timer = new Timer();
-	    timer.schedule(new ObserveProgress(timer,t), 200, 2000);  
+	    timer.schedule(new ObserveProgress(timer,t), 200, 2000);
 	} // end startAlg
-        
+
 	/**
 	 * Calculate the graph for output.
 	 */
 	public void startGraph(){
 		 setStatus(false);
 		 isGraphStarted=true;
-		 
+
 		 //if (Alg not started yet or Alg started, but not ready for graph) or (Alg started but (already read from DB but now fileSelected) or (DB selected but not read yet))
 		 if((!is_alg_started || !isAlgStartedForGraph) || (is_alg_started && ((is_already_read_from_DB && UseFile.isSelected())||(!is_already_read_from_DB && UseDB.isSelected())))){
-		 	dBInError=false; 
+		 	dBInError=false;
 		 	startALG(false);
 		 }
 		 else{
@@ -1761,7 +1760,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 				t1.start();
 		     }
 		     catch (CloneNotSupportedException e) {e.printStackTrace();}
-                     setStatus(true); 
+                     setStatus(true);
                      isGraphStarted=false;
                      isAlgStartedForGraph=true;
 		 }
@@ -1773,7 +1772,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 		 setStatus(false);
 		 isDiagStarted=true;
 		 if(!is_alg_started || (is_alg_started && ((is_already_read_from_DB && UseFile.isSelected())||(!is_already_read_from_DB && UseDB.isSelected())))){
-		 	dBInError=false; 
+		 	dBInError=false;
 		 	startALG(true);
 		 }
 		 else{
@@ -1807,12 +1806,12 @@ public class Controller extends JTabbedPane implements ActionListener{
                     });//Thread
                     t.start();
                 Timer timer = new Timer();
-                timer.schedule(new ObserveProgress(timer,t), 200, 2000); 
+                timer.schedule(new ObserveProgress(timer,t), 200, 2000);
                     isFileOutStarted=false;
-            }      
+            }
 	} // end startWriteFile
 
-               
+
 	/**
 	 * Write clustering into DB.
 	 *
@@ -1825,7 +1824,7 @@ public class Controller extends JTabbedPane implements ActionListener{
 	    }
 	    else{
 //        	setStatus(true);
-        	
+
         	Thread t = new Thread(new Runnable(){
         	    public void run(){
         	        isDBWriteInUse=true;
@@ -1834,17 +1833,17 @@ public class Controller extends JTabbedPane implements ActionListener{
         	        cw.writeFile(false,false,false);
 		        	String pw="";
 		            for(int i=0; i<rpasswdfield.getPassword().length;i++)pw+=rpasswdfield.getPassword()[i];
-		            
+
 		            dbc_in=new DBConnect(
-		                	rhostfield.getText(), 
+		                	rhostfield.getText(),
 		                	rdatabasefield.getText(),
-		                	ruserfield.getText(), 
+		                	ruserfield.getText(),
 		                	pw,
 		                	(int)Integer.parseInt(rportfield.getText()),
-		                	otablenamefield.getText(), 
+		                	otablenamefield.getText(),
 		                	COLUMN_NAMES_FOR_DB_OUT
 		        	);
-		            
+
 		        	//File: Controller.CLASSES_TMP_FILENAME
 		        	//Columns: Controller.COLUMN_NAMES_FOR_DB_OUT
 		            try{
@@ -1854,24 +1853,24 @@ public class Controller extends JTabbedPane implements ActionListener{
 		        	}
 		        	catch(IOWrapperException iow_e){
 				        System.err.println("Error while writing into DB!\nConnection failed!");
-				    	JOptionPane.showMessageDialog(null,"Error while writing into DB!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE); 
+				    	JOptionPane.showMessageDialog(null,"Error while writing into DB!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE);
 				    	dBInError=true;
 				    	dbc_in.stillWorks=false;
 				    	return;
 		        	}
 		        	catch(IOIteratorException ioi_e){
 				        System.err.println("Error while writing into DB!\nCould not iterate over results!");
-				    	JOptionPane.showMessageDialog(null,"Error while writing into DB!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE); 
+				    	JOptionPane.showMessageDialog(null,"Error while writing into DB!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE);
 				    	dBInError=true;
 				    	dbc_in.stillWorks=false;
 				    	return;
 		        	}
         	    }//run()
         	});//Thread
-        	
+
     		t.start();
             Timer timer = new Timer();
-    	    timer.schedule(new ObserveProgress(timer,t), 200, 2000); 
+    	    timer.schedule(new ObserveProgress(timer,t), 200, 2000);
         	isDBOutStarted=false;
 	    }
 	}
@@ -1912,16 +1911,16 @@ public class Controller extends JTabbedPane implements ActionListener{
         this.isDBValuesSet = isDBValuesSet;
     }
     /**
-     * 
-     * 
+     *
+     *
      * @return Returns the isFileReadInUsed.
      */
     public boolean isFileInUsed() {
         return isFileReadInUsed;
     }
     /**
-     * 
-     * 
+     *
+     *
      * @param isFileReadInUsed The isFileReadInUsed to set.
      */
     public void setFileInUsed(boolean isFileInUsed) {
@@ -1933,25 +1932,25 @@ public class Controller extends JTabbedPane implements ActionListener{
     public boolean isFileOutselected() {
         return isFileOutselected;
     }
-    
-    
+
+
     /**
      * @param isFileOutselected The isFileOutselected to set.
      */
     public void setFileOutselected(boolean isFileOutselected) {
         this.isFileOutselected = isFileOutselected;
     }
-    
-    
+
+
     /**
-     * 
+     *
      * @author seb
      *
      */
     class ObserveProgress extends TimerTask{
     	private Timer tImer;
     	private Thread tHread;
-    	
+
     	/**
     	 * Handles threads for cw-algorithm and progess-bar.
     	 * @param tImer The Timer to cancel when ready.
@@ -1961,17 +1960,17 @@ public class Controller extends JTabbedPane implements ActionListener{
     		this.tImer = tImer;
     		this.tHread=tHread;
     	}
-    	
+
     	/**
     	 * Checks if cw-algorithm is still running. If ready, creates new threads for graphs <br>
     	 * and/or diagrams and sets the progress-bar visible, valued if ready not visible.
     	 */
     	public void run() {
-    	    
+
     	    //Thread: writes files
     	    if(isFileWriteInUse){
     	        //System.out.println("isFileWriteInUse");
-    	        	
+
     	    	if(cw.getWritesOnlyFiles()){//as long as thread is running
                     int i=cw.writeFileProgress/2;
                     writeIntoFiles.setValue(i);
@@ -1989,7 +1988,7 @@ public class Controller extends JTabbedPane implements ActionListener{
     	    //Thread: writes from file in DB
     	    if(isDBWriteInUse){//as long write process in DB runs
     	    	//System.out.println("isDBWriteInUse");
-    	    	
+
     	        //critical, because dbc_in is not available as object in the beginning
     	        boolean dbc_inStillWork;
     	        try{
@@ -1998,7 +1997,7 @@ public class Controller extends JTabbedPane implements ActionListener{
     	        catch(Exception e){
     	        	dbc_inStillWork=false;
     	        }
-    	        
+
     	        if(cw.getWritesOnlyFiles()||dbc_inStillWork){//as long as the thread is running
 	                int i;
     	            if(dbc_inStillWork){
@@ -2016,7 +2015,7 @@ public class Controller extends JTabbedPane implements ActionListener{
     	            isDBWriteInUse=false;
     	            writeIntoDBProgress.setVisible(false);
     	            if(!isFileWriteInUse)setStatus(true);
-		            
+
     	            if(dBInError){
     	            	tImer.cancel();
                         System.err.print("\t FAILED!\n");
@@ -2032,7 +2031,7 @@ public class Controller extends JTabbedPane implements ActionListener{
     	    //Thread: lloads from DB and writes in nodelist.tmp and edgelist.tmp
     	    if(isDBReadInUse){//as lng as read process is active
 	            //System.out.println("isDBReadInUse");
-    	    	
+
     	    	loadFromDBProgress.setVisible(true);
 	            if(dbc_out.stillWorks){
 	                //System.out.println("Loading from DB active ...");
@@ -2046,30 +2045,30 @@ public class Controller extends JTabbedPane implements ActionListener{
 	                System.out.println("*\tLoading from DB finished.");
 	                isDBReadInUse=false;
 		            loadFromDBProgress.setVisible(false);
-		            
+
 		            if(dBOutError){
 		            	tImer.cancel();
 		            	System.err.print("\t FAILED!\n");
-						
+
 		            	setStatus(true);
-		            	
+
 		            	isGraphStarted=false;
 		            	isDiagStarted=false;
 		            	isFileWriteInUse=false;
 		            	dBOutError=false;
-		            	
+
 		            	//dBInError=true;
-		            	
+
 		            }
 	            }
 	        }
 	        //Thread: runs Chinese Whispers
     	    else  if(!dBOutError && !dBInError) {
     	    	//System.out.println("!dBOutError&&!dBInError");
-    	    	
+
     	    	calculateCWProgress.setVisible(true);
                 CalculateCWLabel.setVisible(true);
-	
+
                 if(cw.isActive){
                     if (cw.getIteration()>0) calculateCWProgress.setValue((cw.getCurrentIteration()*100)/cw.getIteration());
                     calculateCWProgress.repaint();
@@ -2078,29 +2077,29 @@ public class Controller extends JTabbedPane implements ActionListener{
                     System.out.println("*\tCalculating algorithm finished.");
                     calculateCWProgress.setVisible(false);
                     CalculateCWLabel.setVisible(false);
-			        
+
                     if(isGraphStarted){
                         //System.out.println("isGraphStarted");
-                        setStatus(true); 
+                        setStatus(true);
                         isAlgStartedForGraph=true;
                         isGraphStarted=false;
                         try {
                             Thread t1 = new Thread(new MyGraphGUI(display_sub_current,(ChineseWhispers)cw.clone(),display_edges_temp,scale_temp,30,display_degree_temp));
                             t1.start();
-                        } catch (CloneNotSupportedException e) {e.printStackTrace();}	    		    
+                        } catch (CloneNotSupportedException e) {e.printStackTrace();}
                     } // fi isGraphStarted
-                    
+
                     if(isDiagStarted){
                                 //System.out.println("isDiagStarted");
-                                setStatus(true); 
+                                setStatus(true);
                                 isAlgStartedForGraph=false;
                                 isDiagStarted=false;
                         try {
                             Thread t2 = new Thread(new Diagram((ChineseWhispers)cw.clone()));
                             t2.start();
-                        } 
+                        }
                         catch (CloneNotSupportedException e) {e.printStackTrace();}
-                                
+
                     } // fi isDiagStarted
                     if(isFileOutStarted){
                         //System.out.println("isFileOutStarted");
@@ -2114,10 +2113,10 @@ public class Controller extends JTabbedPane implements ActionListener{
                                     //isFileWriteInUse=false;
                                 }//run()
                         });//Thread
-                        
+
                         t.start();
                         Timer timer = new Timer();
-                        timer.schedule(new ObserveProgress(timer,t), 200, 2000); 
+                        timer.schedule(new ObserveProgress(timer,t), 200, 2000);
                         isFileOutStarted=false;
                     } // fi isFileOutStarted
                     if(isDBOutStarted){
@@ -2133,12 +2132,12 @@ public class Controller extends JTabbedPane implements ActionListener{
                                 for(int i=0; i<rpasswdfield.getPassword().length;i++)pw+=rpasswdfield.getPassword()[i];
 
                                 dbc_in=new DBConnect(
-                                    rhostfield.getText(), 
+                                    rhostfield.getText(),
                                     rdatabasefield.getText(),
-                                    ruserfield.getText(), 
+                                    ruserfield.getText(),
                                     pw,
                                     (int)Integer.parseInt(rportfield.getText()),
-                                    otablenamefield.getText(), 
+                                    otablenamefield.getText(),
                                     COLUMN_NAMES_FOR_DB_OUT
                                 );
 
@@ -2150,14 +2149,14 @@ public class Controller extends JTabbedPane implements ActionListener{
                                     dbc_in.writeFromFileIntoDB();
                                 } catch(IOWrapperException iow_e){
                                     System.err.println("Error while writing into DB!\nConnection failed!");
-                                    JOptionPane.showMessageDialog(null,"Error while writing into DB!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE); 
+                                    JOptionPane.showMessageDialog(null,"Error while writing into DB!\nConnection failed!", "Error", JOptionPane.ERROR_MESSAGE);
                                     dBInError=true;
                                     dbc_in.stillWorks=false;
                                     return;
                                 } // end catch WrapperException
                                 catch(IOIteratorException ioi_e){
                                     System.err.println("Error while writing into DB!\nCould not iterate over results!");
-                                    JOptionPane.showMessageDialog(null,"Error while writing into DB!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE); 
+                                    JOptionPane.showMessageDialog(null,"Error while writing into DB!\nCould not iterate over results!", "Error", JOptionPane.ERROR_MESSAGE);
                                     dBInError=true;
                                     dbc_in.stillWorks=false;
                                     return;
@@ -2168,17 +2167,17 @@ public class Controller extends JTabbedPane implements ActionListener{
 
                         t.start();
                         Timer timer = new Timer();
-                        timer.schedule(new ObserveProgress(timer,t), 200, 2000); 
+                        timer.schedule(new ObserveProgress(timer,t), 200, 2000);
                         isDBOutStarted=false;
                     } // end isDBOutStarted
-                    
-	    		
+
+
                 } // esle CW not active
-    		
+
             } // fi (!dBOutError && !dBInError)
-    	
+
         } // end void run()
-    
+
     } // end class observeProgress
 
 } // end Class Controller
