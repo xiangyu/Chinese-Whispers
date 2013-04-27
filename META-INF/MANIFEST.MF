@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.6.5
+Created-By: 1.5.0_06-b05 (Sun Microsystems Inc.)
+Main-Class: de.uni_leipzig.asv.toolbox.ChineseWhispers.main.Start
+Class-Path: lib/colt.jar lib/commons-collections-3.1.jar lib/cooccacce
+ ss.jar lib/IOWrapper.jar lib/jcommon-1.0.0-pre3-junit.jar lib/jcommon
+ -1.0.0-pre3.jar lib/jcommon-xml-1.0.0-pre3.jar lib/jfreechart-1.0.0-p
+ re2.jar lib/jung-1.6.0.jar lib/junit.jar lib/mysql-connector-java-3.1
+ .10-bin.jar lib/asv-toolbox_util_CommonFileChooser.jar
+X-COMMENT: Main-Class will be added automatically by build
+
